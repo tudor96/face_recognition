@@ -74,7 +74,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Signin/>
+        {/* <Signin/> */}
         <Particles className='particles'
           params={particlesOptions}
         />
