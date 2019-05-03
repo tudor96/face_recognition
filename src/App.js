@@ -47,11 +47,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:3000/')
-    .then(res => res.json())
-    .then((data)=>{
-      console.log(data);
-    })
+    // fetch('https://serene-reef-87518.herokuapp.com/')
+    // .then(res => res.json())
+    // .then((data)=>{
+    //   console.log(data);
+    // })
   }
 
 
@@ -94,7 +94,7 @@ class App extends Component {
   onButtonSubmit = () =>{
     console.log("Pressed Button");
     this.setState({imgUrl:this.state.input});
-    fetch('http://localhost:3000/imageUrl', {
+    fetch('https://serene-reef-87518.herokuapp.com/imageUrl', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body:JSON.stringify({
@@ -104,7 +104,7 @@ class App extends Component {
       .then( (response) => {
         console.log(response)
         if(response){
-          fetch('http://localhost:3000/image', {
+          fetch('https://serene-reef-87518.herokuapp.com/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body:JSON.stringify({
