@@ -4,37 +4,68 @@ import Navigation from './components/Navigation/Navigation'
 import ImageRecognition from './components/ImageRecognition/ImageRecognition'
 import Logo from './components/Logo/Logo';
 import Signin from './components/Signin/Signin';
+import Register from './components/Register/Register';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import Rank from './components/Rank/Rank';
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai'
+
 
 const particlesOptions = {
   particles: {
     number: {
-      value: 100,
+      value: 70,
       density: {
         enable: true,
-        value_area: 800
+        value_area: 1000
       }
     }
   }
 }
 
 
-const app = new Clarifai.App({
-  apiKey: '78097d6ed5804ccd82902320eb1e5dfb'
- });
 
+const initialState = {
+  input: '',
+  imgUrl : '', 
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name:'' ,
+    email:'' ,
+    password:'' ,
+    entries:'' ,
+    joined: '' 
+  }
+}
 
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: '',
-      imgUrl : '', 
-      box: {}
-    }
+    this.state = initialState;
+  }
+
+  componentDidMount() {
+    fetch('http://localhost:3000/')
+    .then(res => res.json())
+    .then((data)=>{
+      console.log(data);
+    })
+  }
+
+
+  loadUser = (data) =>{
+    console.log("LOAD?",data)
+    this.setState({user:{
+      id: data.id,
+      name: data.name ,
+      email:data.email ,
+      password:data.password ,
+      entries:data.entries ,
+      joined:'', 
+    }});
+    console.log("LOGGED USER:", this.state.user);
   }
 
   onInputChange = (event) => {
@@ -63,37 +94,79 @@ class App extends Component {
   onButtonSubmit = () =>{
     console.log("Pressed Button");
     this.setState({imgUrl:this.state.input});
-    
-    app.models
-      .predict(Clarifai.FACE_DETECT_MODEL,this.state.input)
-      .then( (response) => 
-        this.displayFaceBox(this.calculateFaceBox(response)))
+    fetch('http://localhost:3000/imageUrl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body:JSON.stringify({
+          input: this.state.input,
+      })
+    }).then(response => response.json())
+      .then( (response) => {
+        console.log(response)
+        if(response){
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body:JSON.stringify({
+                id: this.state.user.id,
+            })
+          }).then(response => response.json())
+          .then(data => {
+            this.setState(Object.assign(this.state.user, {entries:data}));
+             console.log(data);
+          })
+          .catch(console.log)
+        }
+        this.displayFaceBox(this.calculateFaceBox(response))
+      })
       .catch(err => console.log(err))  
+  }
+
+  onRouteChange = (route) => {
+    console.log("ROUTE", route);
+    if(route === 'signout'){
+      this.setState(initialState);
+    }else if(route === 'home') {
+      console.log("IsLogged", route);
+      this.setState({route:route});
+      this.setState({isSignedIn:true});
+    }else {
+      this.setState({route:route});
+    }
+
+    // 
   }
 
   render() {
     return (
+      
       <div className="App">
-        {/* <Signin/> */}
-        <Particles className='particles'
+                <Particles className='particles'
           params={particlesOptions}
         />
+
         <div className = "container">
            <Logo/>
-           <Navigation></Navigation>
+           <Navigation isSignedIn={this.state.isSignedIn} onRouteChange= {this.onRouteChange} />
         </div>
-
-        <Rank/>
-
-        {/* reupdate function onInputChange */}
-        <ImageLinkForm 
-          onInputChange ={this.onInputChange}
-          onButtonSubmit = {this.onButtonSubmit}
-        />
-        <ImageRecognition
-          box = {this.state.box}
-          imgUrl = {this.state.imgUrl}
-        />
+        { this.state.route === 'home'?
+         <div>
+            <Rank name={this.state.user.name}
+                entries={this.state.user.entries}/>
+            <ImageLinkForm 
+                onInputChange ={this.onInputChange}
+                onButtonSubmit = {this.onButtonSubmit}
+            />
+            <ImageRecognition
+                box = {this.state.box}
+                imgUrl = {this.state.imgUrl}
+            /> 
+         </div>
+        :(this.state.route === 'signin'?
+            <Signin loadUser={this.loadUser}  onRouteChange= {this.onRouteChange}/>:
+            <Register loadUser={this.loadUser} onRouteChange= {this.onRouteChange}/>
+          )
+        }
       </div>
     );
   }

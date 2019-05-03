@@ -1,17 +1,17 @@
 import React from 'react';
 
 
-const Navigation = () => {
+const Rank = ({name, entries}) => {
     return (
         <div>
             <div className = "white f3">
-                {'Your current rank is '}
+                {`Hello, ${name}. Your current image entries is `}
             </div>
             <div className = "white f1">
-                {'#2'}
+                {`${entries}`}
             </div>
         </div>
     )
 }
 
-export default Navigation;
+export default Rank;

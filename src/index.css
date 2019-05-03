@@ -6,8 +6,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(89deg, #FF5EDF 0%, #04C8DE 100%);
-}
+  background: #c31432;  /* fallback for old browsers */
+  background: #009FFF;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, rgb(207, 58, 80), rgb(1, 133, 214));  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, rgb(187, 61, 80), rgb(110, 179, 221)); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  
+  }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
